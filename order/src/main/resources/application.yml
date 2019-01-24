@@ -1,0 +1,17 @@
+server:
+  port: 8080
+logging:
+  pattern:
+    console: "%date{HH:mm:ss.SSS} %msg%n"
+  level:
+    root: WARN
+    se:
+      callista:
+        cadec:
+          eda: INFO
+spring:
+  main:
+    banner-mode: "OFF"  
+integration:
+  invoicing: http://${DOCKER_HOST_IP:localhost}:8081/invoice
+  shipping: http://${DOCKER_HOST_IP:localhost}:8082/shipping

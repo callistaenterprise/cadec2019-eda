@@ -1,0 +1,16 @@
+server:
+  port: 8082
+logging:
+  pattern:
+    console: "%date{HH:mm:ss.SSS} %msg%n"
+  level:
+    root: WARN
+    se:
+      callista:
+        cadec:
+          eda: INFO
+spring:
+  main:
+    banner-mode: "OFF"  
+integration:
+  customer: http://${DOCKER_HOST_IP:localhost}:8083/customer

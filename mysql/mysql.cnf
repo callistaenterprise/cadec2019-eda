@@ -1,0 +1,9 @@
+[mysqld]
+skip-host-cache
+skip-name-resolve
+
+user=mysql
+
+symbolic-links=0
+
+log_error_verbosity=1

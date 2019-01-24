@@ -1,0 +1,5 @@
+server:
+  port: 8080
+integration:
+  invoicing: http://invoicing:8080/invoice
+  shipping: http://shipping:8080/shipping

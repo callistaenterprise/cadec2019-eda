@@ -1,0 +1,4 @@
+server:
+  port: 8080
+integration:
+  customer: http://customer:8080/customer

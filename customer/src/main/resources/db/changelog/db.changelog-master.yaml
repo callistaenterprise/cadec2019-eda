@@ -1,0 +1,32 @@
+databaseChangeLog:
+- changeSet:
+    id: initial
+    author: bb@callistaenterprise.se
+    changes:
+    - createTable:
+        tableName: customer
+        columns:
+        - column:
+            name: id
+            type: VARCHAR(255)
+            constraints:
+              primaryKey: true
+              primaryKeyName: customer_pkey
+        - column:
+            name: firstname
+            type: VARCHAR(255)
+        - column:
+            name: lastname
+            type: VARCHAR(255)
+        - column:
+            name: street
+            type: VARCHAR(255)
+        - column:
+            name: zip
+            type: VARCHAR(255)
+        - column:
+            name: city
+            type: VARCHAR(255)
+        - column:
+            name: email
+            type: VARCHAR(255)

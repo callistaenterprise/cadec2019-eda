@@ -1,0 +1,23 @@
+server:
+  port: 8083
+logging:
+  pattern:
+    console: "%date{HH:mm:ss.SSS} %msg%n"
+  level:
+    root: WARN
+    se:
+      callista:
+        cadec:
+          eda: INFO
+spring:
+  main:
+    banner-mode: "OFF"  
+  datasource:
+    platform: mysql
+    url: jdbc:mysql://${DOCKER_HOST_IP:localhost}:3306/customer
+    username: mysql
+    password: secret
+  jpa:
+    open-in-view: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml      
