@@ -17,7 +17,6 @@ public class OrderEventReceiver {
   
   @KafkaListener(topics = "${kafka.topic.orders}", containerFactory = "orderListenerContainerFactory")
   public void receive(Order order) {
-    LOGGER.info("received order {}", order);
     if (order.getState().equals(Order.CREATED)) {
       try {
         Thread.sleep(500);
