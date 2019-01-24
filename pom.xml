@@ -26,6 +26,7 @@
 	<modules>
 		<module>order-domain</module>
 		<module>order</module>
+		<module>inventory</module>
 		<module>invoicing</module>
 		<module>shipping</module>
 		<module>customer-domain</module>

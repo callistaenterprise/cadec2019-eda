@@ -48,7 +48,7 @@ services:
       zookeeper:
         condition: service_started
   order:
-    image: cadec2019/order:eventNotification
+    image: cadec2019/order:choreography
     ports:
      - 8080:8080
     restart: always
@@ -61,7 +61,7 @@ services:
       kafka:
         condition: service_started
   invoicing:
-    image: cadec2019/invoicing:eventNotification
+    image: cadec2019/invoicing:choreography
     ports:
      - 8081:8080
     restart: always
@@ -80,7 +80,7 @@ services:
       customer:
         condition: service_healthy
   shipping:
-    image: cadec2019/shipping:eventNotification
+    image: cadec2019/shipping:choreography
     ports:
      - 8082:8080
     restart: always
@@ -95,7 +95,7 @@ services:
       order:
         condition: service_healthy
   customer:
-    image: cadec2019/customer:eventNotification
+    image: cadec2019/customer:choreography
     ports:
      - 8083:8080
     restart: always
@@ -108,4 +108,19 @@ services:
       kafka:
         condition: service_started
       mysql:
+        condition: service_healthy
+  inventory:
+    image: cadec2019/inventory:choreography
+    ports:
+     - 8084:8080
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      kafka:
+        condition: service_started
+      order:
         condition: service_healthy

@@ -11,7 +11,7 @@
 
 	<groupId>se.callista.cadec.eda</groupId>
 	<artifactId>invoicing</artifactId>
-	<version>eventNotification</version>
+	<version>choreography</version>
 	<packaging>jar</packaging>
 
 	<name>invoicing</name>

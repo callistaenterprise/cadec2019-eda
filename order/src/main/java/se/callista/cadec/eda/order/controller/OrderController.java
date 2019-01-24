@@ -20,6 +20,7 @@ public class OrderController {
   @PostMapping(value = "/order")
   public Order placeOrder(@RequestBody Order order) {
     order.setId(UUID.randomUUID().toString());
+    order.setState(Order.CREATED);
     orderEventSender.send(order);
     LOGGER.info("Order '{}' placed by '{}' created", order.getId(), order.getCustomer());
     return order;

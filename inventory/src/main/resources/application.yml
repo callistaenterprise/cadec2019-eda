@@ -1,0 +1,24 @@
+server:
+  port: 8084
+logging:
+  pattern:
+    console: "%date{HH:mm:ss.SSS} %msg%n"
+  level:
+    root: WARN
+    se:
+      callista:
+        cadec:
+          eda: INFO
+spring:
+  main:
+    banner-mode: "OFF"  
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+  kafka:
+    bootstrap-servers: ${DOCKER_HOST_IP:localhost}:9092
+    consumer:
+      auto-offset-reset: earliest
+      group-id: inventory
+kafka:
+  topic:
+    orders: orders

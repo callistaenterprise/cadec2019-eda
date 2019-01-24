@@ -11,7 +11,7 @@
 
 	<groupId>se.callista.cadec.eda</groupId>
 	<artifactId>order-domain</artifactId>
-	<version>eventNotification</version>
+	<version>choreography</version>
 	<packaging>jar</packaging>
 
 	<name>order-domain</name>

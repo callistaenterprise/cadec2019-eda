@@ -6,18 +6,23 @@ public class Order implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  public static final String CREATED = "Created";
+  public static final String VALIDATED = "Validated";
+  
   private String id;
 
   private String customer;
   private String content;
+  private String state;
   
   public Order() {}
   
-  public Order(String id, String customer, String content) {
+  public Order(String id, String customer, String content, String state) {
     super();
     this.id = id;
     this.customer = customer;
     this.content = content;
+    this.state = state;
   }
 
   public String getId() {
@@ -38,10 +43,16 @@ public class Order implements Serializable {
   public void setContent(String content) {
     this.content = content;
   }
+  public String getState() {
+    return state;
+  }
+  public void setState(String state) {
+    this.state = state;
+  }
 
   @Override
   public String toString() {
-    return "Order [id=" + id + ", customer=" + customer + ", content=" + content + "]";
+    return "Order [id=" + id + ", customer=" + customer + ", content=" + content + ", state=" + state + "]";
   }
 
   @Override
@@ -81,6 +92,11 @@ public class Order implements Serializable {
     if (getClass() != obj.getClass())
       return false;
     Order other = (Order) obj;
+    if (state == null) {
+      if (other.state != null)
+        return false;
+    } else if (!state.equals(other.state))
+      return false;
     if (content == null) {
       if (other.content != null)
         return false;

@@ -61,12 +61,21 @@ public class OrderEventReceiverIntegrationTest {
   }
 
   @Test
-  public void testEventReceiver() throws Exception {
+  public void testEventCreated() throws Exception {
     Customer customer = new Customer("id", "firstName1", "lastName1", "street1", "zip1", "city1", "bb@callistaenterprise.se");
     when(customerClient.getCustomerByEmail("bb@callistaenterprise.se")).thenReturn(customer);
-    Order order = new Order("order1", "bb@callistaenterprise.se", "Event Driven Architecture");
+    Order order = new Order("order1", "bb@callistaenterprise.se", "Event Driven Architecture", Order.CREATED);
     orderEventSender.send(order);
-    verify(shippingService, timeout(1000).times(1)).createShipping(eq(order), eq(customer));
+    verify(shippingService, timeout(500).times(0)).createShipping(eq(order), eq(customer));
+  }
+
+  @Test
+  public void testEventValidated() throws Exception {
+    Customer customer = new Customer("id", "firstName1", "lastName1", "street1", "zip1", "city1", "bb@callistaenterprise.se");
+    when(customerClient.getCustomerByEmail("bb@callistaenterprise.se")).thenReturn(customer);
+    Order order = new Order("order1", "bb@callistaenterprise.se", "Event Driven Architecture", Order.VALIDATED);
+    orderEventSender.send(order);
+    verify(shippingService, timeout(500).times(1)).createShipping(eq(order), eq(customer));
   }
 
 }

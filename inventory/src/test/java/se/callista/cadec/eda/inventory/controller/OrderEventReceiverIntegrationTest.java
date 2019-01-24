@@ -1,9 +1,9 @@
-package se.callista.cadec.eda.invoicing.controller;
+package se.callista.cadec.eda.inventory.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -19,31 +19,25 @@ import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.context.junit4.SpringRunner;
-import se.callista.cadec.eda.customer.domain.Customer;
-import se.callista.cadec.eda.invoicing.integration.CustomerClient;
-import se.callista.cadec.eda.invoicing.service.InvoiceService;
 import se.callista.cadec.eda.order.domain.Order;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ComponentScan(basePackages = "se.callista.cadec.eda.invoicing")
+@ComponentScan(basePackages = "se.callista.cadec.eda.inventory")
 @EnableKafka
 public class OrderEventReceiverIntegrationTest {
 
   @Autowired
-  private OrderEventSender orderEventSender;
+  private OrderEventTestSender orderEventTestSender;
 
   @Autowired
   private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
 
   @MockBean
-  private CustomerClient customerClient;
-
-  @MockBean
-  private InvoiceService invoiceService;
+  private OrderEventSender orderEventSender;
 
   @ClassRule
-  public static EmbeddedKafkaRule kafkaBroker = new EmbeddedKafkaRule(1, false, "customers", "orders");
+  public static EmbeddedKafkaRule kafkaBroker = new EmbeddedKafkaRule(1, false, "orders");
 
   @BeforeClass
   public static void setUpBeforeClass() {
@@ -62,20 +56,17 @@ public class OrderEventReceiverIntegrationTest {
 
   @Test
   public void testEventCreated() throws Exception {
-    Customer customer = new Customer("id", "firstName1", "lastName1", "street1", "zip1", "city1", "bb@callistaenterprise.se");
-    when(customerClient.getCustomerByEmail("bb@callistaenterprise.se")).thenReturn(customer);
-    Order order = new Order("order1", "bb@callistaenterprise.se", "Event Driven Architecture", Order.CREATED);
-    orderEventSender.send(order);
-    verify(invoiceService, timeout(500).times(0)).createInvoice(eq(order), eq(customer));
+    Order createdOrder = new Order("order1", "bb@callistaenterprise.se", "Event Driven Architecture", Order.CREATED);
+    Order validatedOrder = new Order("order1", "bb@callistaenterprise.se", "Event Driven Architecture", Order.VALIDATED);
+    orderEventTestSender.send(createdOrder);
+    verify(orderEventSender, timeout(1000).times(1)).send(eq(validatedOrder));
   }
 
   @Test
   public void testEventValidated() throws Exception {
-    Customer customer = new Customer("id", "firstName1", "lastName1", "street1", "zip1", "city1", "bb@callistaenterprise.se");
-    when(customerClient.getCustomerByEmail("bb@callistaenterprise.se")).thenReturn(customer);
-    Order order = new Order("order1", "bb@callistaenterprise.se", "Event Driven Architecture", Order.VALIDATED);
-    orderEventSender.send(order);
-    verify(invoiceService, timeout(500).times(1)).createInvoice(eq(order), eq(customer));
+    Order validatedOrder = new Order("order1", "bb@callistaenterprise.se", "Event Driven Architecture", Order.VALIDATED);
+    orderEventTestSender.send(validatedOrder);
+    verify(orderEventSender, timeout(1000).times(0)).send(any(Order.class));
   }
 
 }

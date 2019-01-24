@@ -10,18 +10,13 @@
 	</parent>
 
 	<groupId>se.callista.cadec.eda</groupId>
-	<artifactId>shipping</artifactId>
+	<artifactId>inventory</artifactId>
 	<version>choreography</version>
 	<packaging>jar</packaging>
 
-	<name>shipping</name>
+	<name>inventory</name>
 
 	<dependencies>
-		<dependency>
-			<groupId>se.callista.cadec.eda</groupId>
-			<artifactId>customer-domain</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>se.callista.cadec.eda</groupId>
 			<artifactId>order-domain</artifactId>
