@@ -10,10 +10,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
@@ -22,19 +18,15 @@ import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import se.callista.cadec.eda.customer.domain.Customer;
 import se.callista.cadec.eda.order.domain.Order;
-import se.callista.cadec.eda.shipping.customer.CustomerRepository;
 import se.callista.cadec.eda.shipping.integration.CustomerClient;
 import se.callista.cadec.eda.shipping.service.ShippingService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ComponentScan(basePackages = "se.callista.cadec.eda.shipping")
-@TestPropertySource(properties = {"spring.liquibase.enabled=false"})
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 @EnableKafka
 public class OrderEventReceiverIntegrationTest {
 
@@ -49,9 +41,6 @@ public class OrderEventReceiverIntegrationTest {
 
   @MockBean
   private ShippingService shippingService;
-
-  @MockBean
-  private CustomerRepository customerRepository;
 
   @ClassRule
   public static EmbeddedKafkaRule kafkaBroker = new EmbeddedKafkaRule(1, false, "customers", "orders");

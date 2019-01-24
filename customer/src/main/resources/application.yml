@@ -25,6 +25,9 @@ spring:
     exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
   kafka:
     bootstrap-servers: ${DOCKER_HOST_IP:localhost}:9092
+    consumer:
+      auto-offset-reset: earliest
+      group-id: customer
 kafka:
   topic:
     customers: customers

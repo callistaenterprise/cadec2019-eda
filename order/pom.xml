@@ -11,7 +11,7 @@
 
 	<groupId>se.callista.cadec.eda</groupId>
 	<artifactId>order</artifactId>
-	<version>eventCarriedStateTransfer</version>
+	<version>eventSourcing</version>
 	<packaging>jar</packaging>
 
 	<name>order</name>

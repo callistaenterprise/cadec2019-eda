@@ -3,8 +3,8 @@ package se.callista.cadec.eda.customer.controller;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -97,10 +97,8 @@ public class CustomerControllerTest {
         "{\"id\":\"new\",\"email\":\"new@email\"}"))
         .andExpect(status().isOk()).andReturn();
     Customer customerResponse = objectMapper.readValue(result.getResponse().getContentAsString(), Customer.class);
-    se.callista.cadec.eda.customer.repository.Customer persistentCustomerResponse =
-        modelMapper.map(customerResponse, se.callista.cadec.eda.customer.repository.Customer.class);
-    verify(customerRepository, times(1)).save(eq(persistentCustomerResponse));
     verify(customerEventSender, times(1)).send(customerResponse.getId(), customerResponse);
+    verifyZeroInteractions(customerRepository);
     assertTrue(customerResponse.getEmail().equals("new@email"));
   }
 
@@ -111,10 +109,8 @@ public class CustomerControllerTest {
         "{\"email\":\"updated@email\"}"))
         .andExpect(status().isOk()).andReturn();
     Customer customerResponse = objectMapper.readValue(result.getResponse().getContentAsString(), Customer.class);
-    se.callista.cadec.eda.customer.repository.Customer persistentCustomerResponse =
-        modelMapper.map(customerResponse, se.callista.cadec.eda.customer.repository.Customer.class);
-    verify(customerRepository, times(1)).save(eq(persistentCustomerResponse));
     verify(customerEventSender, times(1)).send(customerResponse.getId(), customerResponse);
+    verifyZeroInteractions(customerRepository);
     assertTrue(customerResponse.getEmail().equals("updated@email"));
   }
 
@@ -123,8 +119,8 @@ public class CustomerControllerTest {
     when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.of(persistentCustomer));
     mockMvc.perform(delete("/customer/"+customer.getId()))
         .andExpect(status().isOk());
-    verify(customerRepository, times(1)).deleteById(customer.getId());
     verify(customerEventSender, times(1)).send(customer.getId(), null);
+    verifyZeroInteractions(customerRepository);
   }
 
 }

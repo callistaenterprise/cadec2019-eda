@@ -1,9 +1,15 @@
 package se.callista.cadec.eda.shipping.customer;
 
-import org.springframework.data.repository.CrudRepository;
+import se.callista.cadec.eda.customer.domain.Customer;
 
-public interface CustomerRepository extends CrudRepository<Customer, String> {
+public interface CustomerRepository {
 
+  Customer findById(String id);
+  
   Customer findByEmail(String email);
+  
+  Customer save(Customer customer);
+  
+  void delete(Customer customer);
 
 }

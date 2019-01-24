@@ -1,17 +1,20 @@
 package se.callista.cadec.eda.invoicing.integration;
 
+import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.modelmapper.ModelMapper;
+import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.listener.ConsumerSeekAware;
 import org.springframework.stereotype.Component;
 import se.callista.cadec.eda.customer.domain.Customer;
 import se.callista.cadec.eda.invoicing.customer.CustomerRepository;
 
 @Component
-public class CustomerEventReceiver {
+public class CustomerEventReceiver implements ConsumerSeekAware {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CustomerEventReceiver.class);
 
@@ -32,6 +35,25 @@ public class CustomerEventReceiver {
       LOGGER.info("received customer delete {}", id);
       customerRepository.deleteById(id);
     }
+  }
+
+  @Override
+  public void onPartitionsAssigned(Map<TopicPartition, Long> assignments,
+      ConsumerSeekCallback callback) {
+    for (TopicPartition topicPartition : assignments.keySet()) {
+      callback.seekToBeginning(topicPartition.topic(), topicPartition.partition());
+    }
+  }
+
+  @Override
+  public void registerSeekCallback(ConsumerSeekCallback callback) {
+    // NOOP
+  }
+
+  @Override
+  public void onIdleContainer(Map<TopicPartition, Long> assignments,
+      ConsumerSeekCallback callback) {
+    // NOOP
   }
 
 }

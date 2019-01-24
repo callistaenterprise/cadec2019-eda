@@ -1,8 +1,9 @@
-package se.callista.cadec.eda.shipping.integration;
+package se.callista.cadec.eda.customer.integration;
 
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +11,16 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.listener.ConsumerSeekAware;
 import org.springframework.stereotype.Component;
 import se.callista.cadec.eda.customer.domain.Customer;
-import se.callista.cadec.eda.shipping.customer.CustomerRepository;
+import se.callista.cadec.eda.customer.repository.CustomerRepository;
 
 @Component
 public class CustomerEventReceiver implements ConsumerSeekAware {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CustomerEventReceiver.class);
 
+  @Autowired
+  private ModelMapper modelMapper;
+  
   @Autowired
   private CustomerRepository customerRepository;
 
@@ -26,12 +30,16 @@ public class CustomerEventReceiver implements ConsumerSeekAware {
     Customer customer = record.value();
     if (customer != null) {
       LOGGER.info("received customer update {}", customer);
-      customerRepository.save(customer);
+      customerRepository.save(modelMapper.map(customer, se.callista.cadec.eda.customer.repository.Customer.class));
     } else {
       LOGGER.info("received customer delete {}", id);
-      customer = customerRepository.findById(id);
-      customerRepository.delete(customer);
+      customerRepository.deleteById(id);
     }
+  }
+
+  @Override
+  public void registerSeekCallback(ConsumerSeekCallback callback) {
+    // NOOP
   }
 
   @Override
@@ -40,11 +48,7 @@ public class CustomerEventReceiver implements ConsumerSeekAware {
     for (TopicPartition topicPartition : assignments.keySet()) {
       callback.seekToBeginning(topicPartition.topic(), topicPartition.partition());
     }
-  }
-
-  @Override
-  public void registerSeekCallback(ConsumerSeekCallback callback) {
-    // NOOP
+    
   }
 
   @Override

@@ -57,7 +57,6 @@ public class CustomerController {
   @PostMapping(value = "/customer")
   public Customer createCustomer(@RequestBody Customer customer) {
     customer.setId(UUID.randomUUID().toString());
-    customerRepository.save(modelMapper.map(customer, se.callista.cadec.eda.customer.repository.Customer.class));
     customerEventSender.send(customer.getId(), customer);
     LOGGER.info("Customer '{}' created", customer);
     return customer;
@@ -66,7 +65,6 @@ public class CustomerController {
   @PutMapping(value = "/customer/{id}")
   public Customer updateCustomer(@PathVariable String id, @RequestBody Customer customer) {
     customer.setId(id);
-    customerRepository.save(modelMapper.map(customer, se.callista.cadec.eda.customer.repository.Customer.class));
     customerEventSender.send(customer.getId(), customer);
     LOGGER.info("Customer '{}' updated", customer);
     return customer;
@@ -74,7 +72,6 @@ public class CustomerController {
 
   @DeleteMapping(value = "/customer/{id}")
   public void deleteCustomerById(@PathVariable String id) {
-    customerRepository.deleteById(id);
     customerEventSender.send(id, null);
     LOGGER.info("Customer '{}' deleted", id);
   }

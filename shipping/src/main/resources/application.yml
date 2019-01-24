@@ -19,15 +19,6 @@ spring:
     consumer:
       auto-offset-reset: earliest
       group-id: shipping
-  datasource:
-    platform: postgres
-    url: jdbc:postgresql://${DOCKER_HOST_IP:localhost}:5432/customer
-    username: postgres
-    password: secret
-  jpa:
-    open-in-view: false
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
 kafka:
   topic:
     orders: orders
