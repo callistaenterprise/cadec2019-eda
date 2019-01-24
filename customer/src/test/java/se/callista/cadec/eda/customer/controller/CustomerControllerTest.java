@@ -29,7 +29,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import se.callista.cadec.eda.customer.conf.KafkaConfig;
 import se.callista.cadec.eda.customer.domain.Customer;
-import se.callista.cadec.eda.customer.domain.EventType;
 import se.callista.cadec.eda.customer.integration.CustomerEventSender;
 import se.callista.cadec.eda.customer.repository.CustomerRepository;
 
@@ -101,7 +100,7 @@ public class CustomerControllerTest {
     se.callista.cadec.eda.customer.repository.Customer persistentCustomerResponse =
         modelMapper.map(customerResponse, se.callista.cadec.eda.customer.repository.Customer.class);
     verify(customerRepository, times(1)).save(eq(persistentCustomerResponse));
-    verify(customerEventSender, times(1)).send(customerResponse.getId(), EventType.CREATED);
+    verify(customerEventSender, times(1)).send(customerResponse.getId(), customerResponse);
     assertTrue(customerResponse.getEmail().equals("new@email"));
   }
 
@@ -115,7 +114,7 @@ public class CustomerControllerTest {
     se.callista.cadec.eda.customer.repository.Customer persistentCustomerResponse =
         modelMapper.map(customerResponse, se.callista.cadec.eda.customer.repository.Customer.class);
     verify(customerRepository, times(1)).save(eq(persistentCustomerResponse));
-    verify(customerEventSender, times(1)).send(customerResponse.getId(), EventType.UPDATED);
+    verify(customerEventSender, times(1)).send(customerResponse.getId(), customerResponse);
     assertTrue(customerResponse.getEmail().equals("updated@email"));
   }
 
@@ -125,7 +124,7 @@ public class CustomerControllerTest {
     mockMvc.perform(delete("/customer/"+customer.getId()))
         .andExpect(status().isOk());
     verify(customerRepository, times(1)).deleteById(customer.getId());
-    verify(customerEventSender, times(1)).send(customer.getId(), EventType.DELETED);
+    verify(customerEventSender, times(1)).send(customer.getId(), null);
   }
 
 }

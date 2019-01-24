@@ -6,5 +6,3 @@ spring:
   data:
     redis:
       host: redis
-integration:
-  customer: http://customer:8080/customer

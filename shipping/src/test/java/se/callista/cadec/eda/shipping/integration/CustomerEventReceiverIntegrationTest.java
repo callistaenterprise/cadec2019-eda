@@ -1,14 +1,14 @@
-package se.callista.cadec.eda.shipping.controller;
+package se.callista.cadec.eda.shipping.integration;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -25,10 +25,7 @@ import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import se.callista.cadec.eda.customer.domain.Customer;
-import se.callista.cadec.eda.order.domain.Order;
 import se.callista.cadec.eda.shipping.customer.CustomerRepository;
-import se.callista.cadec.eda.shipping.integration.CustomerClient;
-import se.callista.cadec.eda.shipping.service.ShippingService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,19 +33,16 @@ import se.callista.cadec.eda.shipping.service.ShippingService;
 @TestPropertySource(properties = {"spring.liquibase.enabled=false"})
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 @EnableKafka
-public class OrderEventReceiverIntegrationTest {
+public class CustomerEventReceiverIntegrationTest {
 
   @Autowired
-  private OrderEventSender orderEventSender;
+  private ModelMapper modelMapper;
+
+  @Autowired
+  private CustomerEventSender customerEventSender;
 
   @Autowired
   private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
-
-  @MockBean
-  private CustomerClient customerClient;
-
-  @MockBean
-  private ShippingService shippingService;
 
   @MockBean
   private CustomerRepository customerRepository;
@@ -72,21 +66,17 @@ public class OrderEventReceiverIntegrationTest {
   }
 
   @Test
-  public void testEventCreated() throws Exception {
+  public void testCustomerCreatedOrUpdated() throws Exception {
     Customer customer = new Customer("id", "firstName1", "lastName1", "street1", "zip1", "city1", "bb@callistaenterprise.se");
-    when(customerClient.getCustomerByEmail("bb@callistaenterprise.se")).thenReturn(customer);
-    Order order = new Order("order1", "bb@callistaenterprise.se", "Event Driven Architecture", Order.CREATED);
-    orderEventSender.send(order);
-    verify(shippingService, timeout(500).times(0)).createShipping(eq(order), eq(customer));
+    se.callista.cadec.eda.shipping.customer.Customer cachedCustomer = modelMapper.map(customer, se.callista.cadec.eda.shipping.customer.Customer.class);
+    customerEventSender.send(customer.getId(), customer);
+    verify(customerRepository, timeout(500).times(1)).save(eq(cachedCustomer));
   }
 
   @Test
-  public void testEventValidated() throws Exception {
-    Customer customer = new Customer("id", "firstName1", "lastName1", "street1", "zip1", "city1", "bb@callistaenterprise.se");
-    when(customerClient.getCustomerByEmail("bb@callistaenterprise.se")).thenReturn(customer);
-    Order order = new Order("order1", "bb@callistaenterprise.se", "Event Driven Architecture", Order.VALIDATED);
-    orderEventSender.send(order);
-    verify(shippingService, timeout(500).times(1)).createShipping(eq(order), eq(customer));
+  public void testCustomerDeleted() throws Exception {
+    customerEventSender.send("deleted", null);
+    verify(customerRepository, timeout(500).times(1)).deleteById("deleted");
   }
 
 }

@@ -12,6 +12,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import se.callista.cadec.eda.customer.domain.Customer;
 import se.callista.cadec.eda.order.domain.Order;
 
 @Configuration
@@ -30,7 +31,7 @@ public class KafkaConfig {
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-    props.put(JsonDeserializer.TRUSTED_PACKAGES, "se.callista.cadec.eda.order.domain");
+    props.put(JsonDeserializer.TRUSTED_PACKAGES, "se.callista.cadec.eda.customer.domain,se.callista.cadec.eda.order.domain");
     props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
     return props;
@@ -46,6 +47,20 @@ public class KafkaConfig {
     ConcurrentKafkaListenerContainerFactory<String, Order> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(orderConsumerFactory());
+
+    return factory;
+  }
+
+  @Bean
+  public ConsumerFactory<String, Customer> customerConsumerFactory() {
+    return new DefaultKafkaConsumerFactory<String, Customer>(consumerConfigs());
+  }
+
+  @Bean()
+  public ConcurrentKafkaListenerContainerFactory<String, Customer> customerListenerContainerFactory() {
+    ConcurrentKafkaListenerContainerFactory<String, Customer> factory =
+        new ConcurrentKafkaListenerContainerFactory<>();
+    factory.setConsumerFactory(customerConsumerFactory());
 
     return factory;
   }

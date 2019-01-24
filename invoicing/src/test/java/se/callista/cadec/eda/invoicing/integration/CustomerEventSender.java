@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import se.callista.cadec.eda.customer.domain.EventType;
+import se.callista.cadec.eda.customer.domain.Customer;
 
 @Component
 public class CustomerEventSender {
@@ -13,10 +13,10 @@ public class CustomerEventSender {
   private String customersTopic;
 
   @Autowired
-  private KafkaTemplate<String, String> kafkaTemplate;
+  private KafkaTemplate<String, Customer> kafkaTemplate;
 
-  public void send(String id, EventType eventType) {
-    kafkaTemplate.send(customersTopic, id, eventType.toString());
+  public void send(String id, Customer customer) {
+    kafkaTemplate.send(customersTopic, id, customer);
   }
 
 }

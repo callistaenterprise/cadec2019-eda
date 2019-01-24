@@ -3,5 +3,5 @@ server:
 spring:
   kafka:
     bootstrap-servers: kafka:9092
-integration:
-  customer: http://customer:8080/customer
+  datasource:
+    url: jdbc:postgresql://postgres:5432/customer

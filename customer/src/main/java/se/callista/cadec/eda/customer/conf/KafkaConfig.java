@@ -14,6 +14,7 @@ import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import se.callista.cadec.eda.customer.domain.Customer;
 
 @Configuration
 public class KafkaConfig {
@@ -35,12 +36,12 @@ public class KafkaConfig {
   }
 
   @Bean
-  public ProducerFactory<String, String> producerFactory() {
+  public ProducerFactory<String, Customer> producerFactory() {
     return new DefaultKafkaProducerFactory<>(producerConfigs());
   }
 
   @Bean
-  public KafkaTemplate<String, String> kafkaTemplate() {
+  public KafkaTemplate<String, Customer> kafkaTemplate() {
     return new KafkaTemplate<>(producerFactory());
   }
 

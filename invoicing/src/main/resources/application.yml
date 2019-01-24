@@ -29,5 +29,3 @@ kafka:
   topic:
     orders: orders
     customers: customers
-integration:
-  customer: http://${DOCKER_HOST_IP:localhost}:8083/customer

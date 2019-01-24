@@ -12,6 +12,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import se.callista.cadec.eda.customer.domain.Customer;
 import se.callista.cadec.eda.order.domain.Order;
 
 @TestConfiguration
@@ -39,6 +40,16 @@ public class KafkaTestConfig {
   @Bean
   public KafkaTemplate<String, Order> kafkaTemplate() {
     return new KafkaTemplate<>(producerFactory());
+  }
+
+  @Bean
+  public ProducerFactory<String, Customer> customerProducerFactory() {
+    return new DefaultKafkaProducerFactory<>(producerConfigs());
+  }
+
+  @Bean
+  public KafkaTemplate<String, Customer> customerKafkaTemplate() {
+    return new KafkaTemplate<>(customerProducerFactory());
   }
 
 }
