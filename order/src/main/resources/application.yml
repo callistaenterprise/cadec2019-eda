@@ -12,6 +12,10 @@ logging:
 spring:
   main:
     banner-mode: "OFF"  
-integration:
-  invoicing: http://${DOCKER_HOST_IP:localhost}:8081/invoice
-  shipping: http://${DOCKER_HOST_IP:localhost}:8082/shipping
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+  kafka:
+    bootstrap-servers: ${DOCKER_HOST_IP:localhost}:9092
+kafka:
+  topic:
+    orders: orders

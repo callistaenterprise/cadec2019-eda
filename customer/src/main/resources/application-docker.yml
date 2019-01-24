@@ -3,3 +3,5 @@ server:
 spring:
   datasource:
     url: jdbc:mysql://mysql:3306/customer
+  kafka:
+    bootstrap-servers: kafka:9092

@@ -11,7 +11,7 @@
 
 	<groupId>se.callista.cadec.eda</groupId>
 	<artifactId>customer-domain</artifactId>
-	<version>initial</version>
+	<version>eventNotification</version>
 	<packaging>jar</packaging>
 
 	<name>customer-domain</name>

@@ -17,8 +17,38 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  zookeeper:
+    image: debezium/zookeeper
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+    restart: always
+    environment:
+      LOG_LEVEL: WARN
+  kafka:
+    image: debezium/kafka
+    ports:
+      - "9092:9092"
+    restart: always
+    environment:
+      ZOOKEEPER_CONNECT: zookeeper:2181
+      LOG_LEVEL: WARN
+    depends_on:
+      zookeeper:
+        condition: service_started
   order:
-    image: cadec2019/order:initial
+    image: cadec2019/order:eventNotification
     ports:
      - 8080:8080
     restart: always
@@ -27,8 +57,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    depends_on:
+      kafka:
+        condition: service_started
   invoicing:
-    image: cadec2019/invoicing:initial
+    image: cadec2019/invoicing:eventNotification
     ports:
      - 8081:8080
     restart: always
@@ -37,8 +70,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    depends_on:
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      order:
+        condition: service_healthy
+      customer:
+        condition: service_healthy
   shipping:
-    image: cadec2019/shipping:initial
+    image: cadec2019/shipping:eventNotification
     ports:
      - 8082:8080
     restart: always
@@ -47,8 +89,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    depends_on:
+      kafka:
+        condition: service_started
+      order:
+        condition: service_healthy
   customer:
-    image: cadec2019/customer:initial
+    image: cadec2019/customer:eventNotification
     ports:
      - 8083:8080
     restart: always
@@ -58,5 +105,7 @@ services:
       timeout: 5s
       retries: 5
     depends_on:
+      kafka:
+        condition: service_started
       mysql:
         condition: service_healthy

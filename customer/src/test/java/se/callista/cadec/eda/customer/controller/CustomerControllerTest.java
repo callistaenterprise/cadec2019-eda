@@ -21,16 +21,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScan.Filter;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import se.callista.cadec.eda.customer.conf.KafkaConfig;
 import se.callista.cadec.eda.customer.domain.Customer;
+import se.callista.cadec.eda.customer.domain.EventType;
+import se.callista.cadec.eda.customer.integration.CustomerEventSender;
 import se.callista.cadec.eda.customer.repository.CustomerRepository;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(CustomerController.class)
-@ComponentScan(basePackages = "se.callista.cadec.eda.customer")
+@ComponentScan(basePackages = "se.callista.cadec.eda.customer",
+    excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, value = {KafkaConfig.class})})
 public class CustomerControllerTest {
 
   @Autowired
@@ -44,6 +50,9 @@ public class CustomerControllerTest {
 
   @MockBean
   private CustomerRepository customerRepository;
+
+  @MockBean
+  private CustomerEventSender customerEventSender;
 
   private Customer customer;
   private se.callista.cadec.eda.customer.repository.Customer persistentCustomer;
@@ -92,6 +101,7 @@ public class CustomerControllerTest {
     se.callista.cadec.eda.customer.repository.Customer persistentCustomerResponse =
         modelMapper.map(customerResponse, se.callista.cadec.eda.customer.repository.Customer.class);
     verify(customerRepository, times(1)).save(eq(persistentCustomerResponse));
+    verify(customerEventSender, times(1)).send(customerResponse.getId(), EventType.CREATED);
     assertTrue(customerResponse.getEmail().equals("new@email"));
   }
 
@@ -105,6 +115,7 @@ public class CustomerControllerTest {
     se.callista.cadec.eda.customer.repository.Customer persistentCustomerResponse =
         modelMapper.map(customerResponse, se.callista.cadec.eda.customer.repository.Customer.class);
     verify(customerRepository, times(1)).save(eq(persistentCustomerResponse));
+    verify(customerEventSender, times(1)).send(customerResponse.getId(), EventType.UPDATED);
     assertTrue(customerResponse.getEmail().equals("updated@email"));
   }
 
@@ -113,7 +124,8 @@ public class CustomerControllerTest {
     when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.of(persistentCustomer));
     mockMvc.perform(delete("/customer/"+customer.getId()))
         .andExpect(status().isOk());
-    verify(customerRepository, times(1)).deleteById(eq(customer.getId()));
+    verify(customerRepository, times(1)).deleteById(customer.getId());
+    verify(customerEventSender, times(1)).send(customer.getId(), EventType.DELETED);
   }
 
 }

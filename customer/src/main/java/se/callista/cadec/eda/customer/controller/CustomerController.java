@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import se.callista.cadec.eda.customer.domain.Customer;
+import se.callista.cadec.eda.customer.domain.EventType;
+import se.callista.cadec.eda.customer.integration.CustomerEventSender;
 import se.callista.cadec.eda.customer.repository.CustomerRepository;
 
 @RestController
@@ -29,6 +31,9 @@ public class CustomerController {
 
   @Autowired
   private CustomerRepository customerRepository;
+
+  @Autowired
+  private CustomerEventSender customerEventSender;
 
   @GetMapping(value = "/customer")
   public Iterable<Customer> getCustomers() {
@@ -54,6 +59,7 @@ public class CustomerController {
   public Customer createCustomer(@RequestBody Customer customer) {
     customer.setId(UUID.randomUUID().toString());
     customerRepository.save(modelMapper.map(customer, se.callista.cadec.eda.customer.repository.Customer.class));
+    customerEventSender.send(customer.getId(), EventType.CREATED);
     LOGGER.info("Customer '{}' created", customer);
     return customer;
   }
@@ -62,6 +68,7 @@ public class CustomerController {
   public Customer updateCustomer(@PathVariable String id, @RequestBody Customer customer) {
     customer.setId(id);
     customerRepository.save(modelMapper.map(customer, se.callista.cadec.eda.customer.repository.Customer.class));
+    customerEventSender.send(id, EventType.UPDATED);
     LOGGER.info("Customer '{}' updated", customer);
     return customer;
   }
@@ -69,6 +76,7 @@ public class CustomerController {
   @DeleteMapping(value = "/customer/{id}")
   public void deleteCustomerById(@PathVariable String id) {
     customerRepository.deleteById(id);
+    customerEventSender.send(id, EventType.DELETED);
     LOGGER.info("Customer '{}' deleted", id);
   }
 
